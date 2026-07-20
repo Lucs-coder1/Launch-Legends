@@ -513,6 +513,11 @@
   <div class="screen" id="screen-profile">
     <h2 class="screen-title">Profile</h2>
     <div class="profile-card">
+      <div class="profile-label">Player name</div>
+      <input id="nameInput" type="text" maxlength="20" class="profile-input" placeholder="Your name">
+      <button class="profile-action primary" id="saveNameBtn">Save name</button>
+    </div>
+    <div class="profile-card">
       <div class="profile-label">Player ID</div>
       <div class="profile-id" id="playerIdDisplay"></div>
       <button class="profile-action primary" id="copyIdBtn">Copy Player ID</button>
@@ -1351,8 +1356,18 @@ setInterval(()=>{
 /* ---------------- PROFILE ---------------- */
 function renderProfile(){
   document.getElementById('coinCount').textContent = state.coins;
+  document.getElementById('nameInput').value = state.playerName;
   document.getElementById('playerIdDisplay').textContent = state.playerId;
 }
+
+document.getElementById('saveNameBtn').addEventListener('click', ()=>{
+  const val = document.getElementById('nameInput').value.trim();
+  if(!val){ toast('Enter a name first'); return; }
+  state.playerName = val.slice(0,20);
+  save();
+  pushStats();
+  toast('Name saved!');
+});
 
 document.getElementById('copyIdBtn').addEventListener('click', async ()=>{
   if(ONLINE_MARKET_ENABLED){
