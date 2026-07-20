@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Launch Legends</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #120B29;
+    --surface: #1E1440;
+    --surface-2: #2A1D57;
+    --accent: #FF3EA5;
+    --accent-2: #33E1ED;
+    --gold: #FFC24B;
+    --text: #F5F0FF;
+    --muted: #9C8FC7;
+    --common: #9FB2C4;
+    --uncommon: #4ADE80;
+    --rare: #33C1FF;
+    --legendary: #FFC24B;
+    --epic: #B266FF;
+    --mythic: #FF5DEC;
+    --danger: #FF5D5D;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0;padding:0;height:100%; overflow:hidden;}
+  body{
+    background: radial-gradient(ellipse at top, #1a1140 0%, #0b0720 70%);
+    font-family:'Inter',sans-serif;
+    color:var(--text);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    height:100dvh;
+    padding:12px;
+  }
+  .device{
+    width:100%;
+    max-width:430px;
+    height:100%;
+    max-height:800px;
+    background:linear-gradient(180deg, var(--surface) 0%, #170F35 100%);
+    border-radius:28px;
+    border:1px solid rgba(255,255,255,0.06);
+    box-shadow:0 30px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 16px 8px;
+    flex-shrink:0;
+  }
+  .brand{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:18px;
+    letter-spacing:0.3px;
+    background:linear-gradient(90deg, var(--accent-2), var(--accent));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .coins{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--surface-2);
+    border:1px solid rgba(255,255,255,0.08);
+    padding:6px 12px;
+    border-radius:999px;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:14px;
+  }
+  .coin-dot{
+    width:15px;height:15px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, #FFE9A8, var(--gold));
+    box-shadow:0 0 8px rgba(255,194,75,0.6);
+  }
+  .screen{
+    flex:1;
+    display:none;
+    flex-direction:column;
+    padding:4px 16px 10px;
+    overflow-y:auto;
+    min-height:0;
+  }
+  .screen.active{display:flex;}
+
+  h2.screen-title{
+    font-family:'Baloo 2',sans-serif;
+    font-size:18px;
+    font-weight:700;
+    margin:6px 0 12px;
+    flex-shrink:0;
+  }
+
+  /* ---------- ARENA (full-screen launch = home) ---------- */
+  #screen-arena{padding:4px 14px 10px;}
+  .arena-char-row{
+    display:flex; align-items:center; gap:12px;
+    background:var(--surface-2);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:16px;
+    padding:10px 14px;
+    flex-shrink:0;
+  }
+  .arena-char-emoji{font-size:32px;}
+  .arena-char-info{flex:1;}
+  .arena-char-name{font-family:'Baloo 2',sans-serif; font-weight:700; font-size:15px;}
+  .arena-char-power{color:var(--accent-2); font-size:12px; font-weight:600; margin-top:1px;}
+  .swap-btn{
+    background:none; border:1px solid rgba(255,255,255,0.15); color:var(--muted);
+    font-size:11px; padding:7px 10px; border-radius:9px; cursor:pointer; font-weight:600;
+  }
+
+  .arena-track-wrap{
+    flex:1;
+    margin-top:12px;
+    background:var(--surface-2);
+    border-radius:20px;
+    border:1px solid rgba(255,255,255,0.08);
+    position:relative;
+    overflow:hidden;
+    min-height:220px;
+    background-image:
+      radial-gradient(circle at 15% 15%, rgba(255,62,165,0.15), transparent 40%),
+      radial-gradient(circle at 85% 85%, rgba(51,225,237,0.12), transparent 45%);
+  }
+  .sky-stars{position:absolute; inset:0; opacity:0.5;
+    background-image: radial-gradient(1.5px 1.5px at 20px 30px, white, transparent),
+                       radial-gradient(1.5px 1.5px at 90px 80px, white, transparent),
+                       radial-gradient(1px 1px at 150px 40px, white, transparent),
+                       radial-gradient(1.5px 1.5px at 210px 90px, white, transparent),
+                       radial-gradient(1px 1px at 260px 20px, white, transparent);
+    background-repeat: repeat-x; background-size:300px 100px;
+  }
+  .ground-line{
+    position:absolute; left:0; right:0; bottom:64px; height:2px;
+    background:rgba(255,255,255,0.15);
+  }
+  .track-scroll{
+    position:absolute;
+    bottom:64px; left:0; right:0;
+    height:2px;
+    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.25) 0 2px, transparent 2px 60px);
+  }
+  .track-marker{
+    position:absolute;
+    bottom:70px;
+    font-size:10px;
+    color:var(--muted);
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .runner{
+    position:absolute;
+    bottom:60px;
+    left:26px;
+    font-size:40px;
+    filter:drop-shadow(0 6px 10px rgba(0,0,0,0.45));
+    transition:left .1s linear, transform .1s linear;
+    will-change:transform, left;
+  }
+  .power-badge{
+    position:absolute; top:14px; left:14px;
+    background:rgba(6,3,20,0.55);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:12px;
+    padding:6px 12px;
+    text-align:center;
+  }
+  .power-badge .num{
+    font-family:'Baloo 2',sans-serif; font-size:24px; font-weight:800; color:var(--accent-2);
+    line-height:1;
+  }
+  .power-badge .lbl{font-size:8.5px; color:var(--muted); letter-spacing:1px; text-transform:uppercase;}
+  .distance-badge{
+    position:absolute; top:14px; right:14px;
+    background:rgba(6,3,20,0.55);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:12px;
+    padding:6px 12px;
+    text-align:center;
+  }
+  .distance-badge .num{font-family:'Baloo 2',sans-serif; font-size:24px; font-weight:800; color:var(--gold); line-height:1;}
+  .distance-badge .lbl{font-size:8.5px; color:var(--muted); letter-spacing:1px; text-transform:uppercase;}
+
+  .action-zone{flex-shrink:0; margin-top:12px;}
+  .big-action{
+    width:100%;
+    border:none;
+    padding:18px;
+    border-radius:18px;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:20px;
+    color:#1A0B2E;
+    background:linear-gradient(90deg, var(--accent-2), var(--accent));
+    cursor:pointer;
+    box-shadow:0 10px 26px rgba(255,62,165,0.32);
+    letter-spacing:0.4px;
+    user-select:none;
+  }
+  .big-action:active{transform:scale(0.98);}
+  .big-action:disabled{opacity:0.45; cursor:not-allowed; box-shadow:none;}
+  .action-hint{color:var(--muted); font-size:11.5px; text-align:center; margin-top:8px;}
+
+  .no-char-box{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px;
+  }
+  .no-char-box .emoji{font-size:40px;}
+  .no-char-box .msg{color:var(--muted); font-size:13px; max-width:240px; line-height:1.5;}
+  .claim-btn{
+    border:none; background:linear-gradient(90deg, var(--gold), #ff9d3e);
+    color:#3A2600; font-family:'Baloo 2',sans-serif; font-weight:800; font-size:15px;
+    padding:13px 22px; border-radius:14px; cursor:pointer;
+    box-shadow:0 8px 20px rgba(255,194,75,0.35);
+  }
+
+  /* ---------- PACKS ---------- */
+  .pack-list{display:flex; flex-direction:column; gap:12px;}
+  .pack-card{
+    background:var(--surface-2);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:16px;
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .pack-icon{
+    width:52px;height:52px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;
+    flex-shrink:0;
+  }
+  .pack-info{flex:1;}
+  .pack-name{font-family:'Baloo 2',sans-serif; font-weight:700; font-size:15px;}
+  .pack-odds{color:var(--muted); font-size:11px; margin-top:3px; line-height:1.5;}
+  .pack-buy{
+    border:none;
+    background:linear-gradient(90deg, var(--accent-2), var(--accent));
+    color:#1A0B2E;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    padding:9px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .pack-buy:disabled{opacity:0.4; cursor:not-allowed;}
+
+  /* ---------- INVENTORY / MARKET ---------- */
+  .char-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+  }
+  .char-tile{
+    background:var(--surface-2);
+    border-radius:14px;
+    padding:10px 6px 8px;
+    text-align:center;
+    cursor:pointer;
+    border:1.5px solid transparent;
+    position:relative;
+  }
+  .char-tile.equipped{border-color:var(--accent-2); box-shadow:0 0 0 1px var(--accent-2);}
+  .char-emoji{font-size:28px;}
+  .char-name{font-size:10.5px; font-weight:600; margin-top:4px; line-height:1.2; min-height:24px;}
+  .char-power{
+    font-family:'Baloo 2',sans-serif;
+    font-size:12px;
+    margin-top:2px;
+  }
+  .rarity-tag{
+    display:inline-block;
+    font-size:8.5px;
+    font-weight:700;
+    padding:2px 6px;
+    border-radius:999px;
+    margin-top:5px;
+    letter-spacing:0.4px;
+    text-transform:uppercase;
+  }
+  .empty-msg{color:var(--muted); font-size:13px; text-align:center; margin-top:40px; line-height:1.6;}
+
+  .market-list{display:flex; flex-direction:column; gap:10px;}
+  .market-row{
+    background:var(--surface-2);
+    border-radius:14px;
+    padding:10px 12px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .market-row .char-emoji{font-size:26px;}
+  .market-mid{flex:1;}
+  .market-name{font-weight:600; font-size:13px;}
+  .market-seller{color:var(--muted); font-size:10.5px; margin-top:2px;}
+  .market-price{font-family:'Baloo 2',sans-serif; font-weight:700; font-size:14px; color:var(--gold);}
+  .market-buy{
+    border:none;
+    background:var(--accent);
+    color:#1A0B2E;
+    font-weight:700;
+    font-size:12px;
+    padding:8px 11px;
+    border-radius:9px;
+    cursor:pointer;
+    font-family:'Baloo 2',sans-serif;
+  }
+  .market-buy:disabled{opacity:0.35; cursor:not-allowed;}
+  .tabbar-inner{display:flex; gap:8px; margin-bottom:14px; flex-shrink:0;}
+  .tabbtn{
+    flex:1; padding:9px; border-radius:10px; border:1px solid rgba(255,255,255,0.08);
+    background:transparent; color:var(--muted); font-weight:600; font-size:12.5px; cursor:pointer;
+  }
+  .tabbtn.active{background:var(--surface-2); color:var(--text); border-color:var(--accent-2);}
+
+  .lb-rank{
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:15px;
+    color:var(--muted); width:24px; text-align:center; flex-shrink:0;
+  }
+  .lb-rank.top1{color:var(--gold);}
+  .lb-rank.top2{color:#D7DEE8;}
+  .lb-rank.top3{color:#E3A25E;}
+  .market-row.lb-you{border:1.5px solid var(--accent-2);}
+
+  /* ---------- BOTTOM NAV ---------- */
+  .bottomnav{
+    display:flex;
+    border-top:1px solid rgba(255,255,255,0.07);
+    background:#150C33;
+    flex-shrink:0;
+  }
+  .navbtn{
+    flex:1;
+    background:none; border:none; color:var(--muted);
+    padding:10px 4px 12px;
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+    font-size:10.5px;
+    font-weight:600;
+  }
+  .navbtn .ic{font-size:19px;}
+  .navbtn.active{color:var(--accent-2);}
+
+  /* ---------- MODALS ---------- */
+  .modal-backdrop{
+    position:absolute; inset:0; background:rgba(6,3,20,0.72);
+    display:none; align-items:center; justify-content:center; z-index:50; padding:24px;
+  }
+  .modal-backdrop.active{display:flex;}
+  .modal{
+    background:var(--surface-2);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:20px;
+    padding:22px 20px;
+    width:100%;
+    max-width:320px;
+    text-align:center;
+  }
+  .modal .char-emoji{font-size:44px;}
+  .modal-name{font-family:'Baloo 2',sans-serif; font-weight:700; font-size:17px; margin-top:8px;}
+  .modal-sub{color:var(--muted); font-size:12.5px; margin-top:2px;}
+  .modal-actions{display:flex; flex-direction:column; gap:9px; margin-top:18px;}
+  .maction{
+    border:none; padding:11px; border-radius:11px; font-weight:700; font-size:13.5px;
+    cursor:pointer; font-family:'Inter',sans-serif;
+  }
+  .maction.use{background:var(--accent-2); color:#0B2E30;}
+  .maction.sell{background:var(--gold); color:#3A2600;}
+  .maction.quick{background:var(--surface); color:var(--text); border:1px solid rgba(255,255,255,0.12);}
+  .maction.cancel{background:transparent; color:var(--muted);}
+  .toast{
+    position:absolute;
+    bottom:74px; left:50%; transform:translateX(-50%);
+    background:#0f0a24; border:1px solid rgba(255,255,255,0.12);
+    padding:10px 16px; border-radius:12px; font-size:12.5px;
+    z-index:80; opacity:0; transition:opacity .25s ease, bottom .25s ease;
+    pointer-events:none; text-align:center; max-width:88%;
+  }
+  .toast.show{opacity:1; bottom:82px;}
+
+  .result-emoji{font-size:52px;}
+  .result-title{font-family:'Baloo 2',sans-serif; font-size:20px; font-weight:800; margin-top:6px;}
+  .result-line{color:var(--muted); font-size:13px; margin-top:6px;}
+  .result-coins{font-family:'Baloo 2',sans-serif; color:var(--gold); font-size:22px; margin-top:10px;}
+
+  ::-webkit-scrollbar{width:0;}
+</style>
+</head>
+<body>
+<div class="device" id="device">
+
+  <div class="topbar">
+    <div class="brand">🎯 LAUNCH LEGENDS</div>
+    <div class="coins"><span class="coin-dot"></span><span id="coinCount">0</span></div>
+  </div>
+
+  <!-- ARENA (this is the home / launch screen) -->
+  <div class="screen active" id="screen-arena">
+    <div class="arena-char-row" id="arenaCharRow" style="display:none;">
+      <div class="arena-char-emoji" id="arenaCharEmoji">🚀</div>
+      <div class="arena-char-info">
+        <div class="arena-char-name" id="arenaCharName">—</div>
+        <div class="arena-char-power" id="arenaCharPower">Power —</div>
+      </div>
+      <button class="swap-btn" data-go="inventory">Switch</button>
+    </div>
+
+    <div id="noCharBox" class="no-char-box" style="display:none;">
+      <div class="emoji">🎈</div>
+      <div class="msg">You don't have a character to launch yet. Here's one on the house.</div>
+      <button class="claim-btn" id="claimFreeBtn">Claim free character</button>
+    </div>
+
+    <div id="arenaPlayArea" style="display:flex; flex-direction:column; flex:1; min-height:0;">
+      <div class="arena-track-wrap" id="trackOuter">
+        <div class="sky-stars"></div>
+        <div class="power-badge"><div class="num" id="powerNum">0</div><div class="lbl">Power</div></div>
+        <div class="distance-badge"><div class="num" id="distanceNum">0m</div><div class="lbl">Distance</div></div>
+        <div class="ground-line"></div>
+        <div class="track-scroll" id="trackScroll"></div>
+        <div class="runner" id="runner">🚀</div>
+      </div>
+      <div class="action-zone">
+        <button class="big-action" id="actionBtn">LAUNCH</button>
+        <div class="action-hint" id="actionHint">Press launch, then tap to keep it flying!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PACKS -->
+  <div class="screen" id="screen-packs">
+    <h2 class="screen-title">Packs</h2>
+    <div class="pack-list" id="packList"></div>
+  </div>
+
+  <!-- INVENTORY -->
+  <div class="screen" id="screen-inventory">
+    <h2 class="screen-title">Inventory</h2>
+    <div class="char-grid" id="invGrid"></div>
+    <div class="empty-msg" id="invEmpty" style="display:none;">No characters yet — open a pack to get started!</div>
+  </div>
+
+  <!-- MARKET -->
+  <div class="screen" id="screen-market">
+    <h2 class="screen-title">Market</h2>
+    <div class="tabbar-inner">
+      <button class="tabbtn active" id="tabBuy">Buy</button>
+      <button class="tabbtn" id="tabMine">My Listings</button>
+    </div>
+    <div class="market-list" id="marketList"></div>
+    <div class="empty-msg" id="marketEmpty" style="display:none;"></div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="screen" id="screen-leaderboard">
+    <h2 class="screen-title">Leaderboards</h2>
+    <div class="tabbar-inner" id="lbTabs">
+      <button class="tabbtn active" data-lb="bestLaunch">Best Launch</button>
+      <button class="tabbtn" data-lb="totalDistance">Total Distance</button>
+      <button class="tabbtn" data-lb="coins">Richest</button>
+      <button class="tabbtn" data-lb="collectionValue">Collection</button>
+    </div>
+    <div class="market-list" id="lbList"></div>
+    <div class="empty-msg" id="lbEmpty" style="display:none;"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottomnav">
+    <button class="navbtn active" data-go="arena"><span class="ic">🎯</span>Launch</button>
+    <button class="navbtn" data-go="packs"><span class="ic">🎁</span>Packs</button>
+    <button class="navbtn" data-go="inventory"><span class="ic">🎒</span>Inventory</button>
+    <button class="navbtn" data-go="market"><span class="ic">🏪</span>Market</button>
+    <button class="navbtn" data-go="leaderboard"><span class="ic">🏆</span>Ranks</button>
+  </div>
+
+  <!-- character modal -->
+  <div class="modal-backdrop" id="charModalBackdrop">
+    <div class="modal" id="charModal"></div>
+  </div>
+
+  <!-- sell price modal -->
+  <div class="modal-backdrop" id="sellModalBackdrop">
+    <div class="modal">
+      <div class="modal-name">Set your price</div>
+      <div class="modal-sub">Your character goes on the market. You get paid when someone buys it.</div>
+      <input id="sellPriceInput" type="number" min="1" placeholder="Price in coins"
+        style="width:100%;margin-top:14px;padding:11px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:var(--surface);color:var(--text);font-size:14px;text-align:center;">
+      <div class="modal-actions">
+        <button class="maction sell" id="confirmSellBtn">List for sale</button>
+        <button class="maction cancel" id="cancelSellBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- result modal -->
+  <div class="modal-backdrop" id="resultModalBackdrop">
+    <div class="modal">
+      <div class="result-emoji">🏁</div>
+      <div class="result-title">Launch complete!</div>
+      <div class="result-line" id="resultLine"></div>
+      <div class="result-coins" id="resultCoins"></div>
+      <div class="modal-actions">
+        <button class="maction use" id="resultCloseBtn">Nice!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- pack result modal -->
+  <div class="modal-backdrop" id="packModalBackdrop">
+    <div class="modal">
+      <div class="char-emoji" id="packResultEmoji">🎁</div>
+      <div class="modal-name" id="packResultTitle">Pack opened!</div>
+      <div class="modal-sub" id="packResultLine"></div>
+      <div class="modal-actions">
+        <button class="maction use" id="packResultClose">Nice!</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const RARITY_ORDER = ['common','uncommon','rare','epic','legendary','mythic'];
+const RARITY_META = {
+  common:    {label:'Common',    color:'var(--common)',    value:400,   qs:200},
+  uncommon:  {label:'Uncommon',  color:'var(--uncommon)',  value:1100,  qs:550},
+  rare:      {label:'Rare',      color:'var(--rare)',      value:3000,  qs:1500},
+  epic:      {label:'Epic',      color:'var(--epic)',      value:4800,  qs:2400},
+  legendary: {label:'Legendary', color:'var(--legendary)', value:7500,  qs:3750},
+  mythic:    {label:'Mythic',    color:'var(--mythic)',    value:25000, qs:12500}
+};
+
+const CHARACTERS = [
+  {id:'c1',  name:'Rookie Rocket',   emoji:'🚀', rarity:'common',    power:5},
+  {id:'c2',  name:'Bouncy Ball',     emoji:'⚽', rarity:'common',    power:4},
+  {id:'c3',  name:'Paper Plane',     emoji:'✈️', rarity:'common',    power:6},
+  {id:'c4',  name:'Wind-Up Bot',     emoji:'🤖', rarity:'common',    power:5},
+  {id:'c5',  name:'Rubber Duck',     emoji:'🦆', rarity:'common',    power:4},
+  {id:'c6',  name:'Kite Flyer',      emoji:'🪁', rarity:'common',    power:6},
+  {id:'c7',  name:'Skater Sam',      emoji:'🛹', rarity:'common',    power:5},
+  {id:'c8',  name:'Bubble Blaster',  emoji:'🫧', rarity:'common',    power:4},
+  {id:'c9',  name:'Yo-Yo Master',    emoji:'🪀', rarity:'common',    power:7},
+  {id:'c10', name:'Marble Roller',   emoji:'🔵', rarity:'common',    power:5},
+  {id:'u1',  name:'Rocket Racer',    emoji:'🎇', rarity:'uncommon',  power:9},
+  {id:'u2',  name:'Turbo Turtle',    emoji:'🐢', rarity:'uncommon',  power:8},
+  {id:'u3',  name:'Spring Jumper',   emoji:'🦘', rarity:'uncommon',  power:10},
+  {id:'u4',  name:'Comet Chaser',    emoji:'☄️', rarity:'uncommon',  power:11},
+  {id:'u5',  name:'Firework Frenzy', emoji:'🎆', rarity:'uncommon',  power:9},
+  {id:'u6',  name:'Boomerang Boy',   emoji:'🪃', rarity:'uncommon',  power:10},
+  {id:'u7',  name:'Jet Skater',      emoji:'🛼', rarity:'uncommon',  power:12},
+  {id:'u8',  name:'Cannonball Kid',  emoji:'💣', rarity:'uncommon',  power:8},
+  {id:'r1',  name:'Meteor Mike',     emoji:'☄️', rarity:'rare',      power:15},
+  {id:'r2',  name:'Phoenix Flyer',   emoji:'🔥', rarity:'rare',      power:16},
+  {id:'r3',  name:'Storm Rider',     emoji:'⚡', rarity:'rare',      power:14},
+  {id:'r4',  name:'Ninja Dash',      emoji:'🥷', rarity:'rare',      power:17},
+  {id:'r5',  name:'Dragon Glider',   emoji:'🐉', rarity:'rare',      power:18},
+  {id:'e1',  name:'Blaze Comet',     emoji:'🔆', rarity:'epic',      power:20},
+  {id:'e2',  name:'Shadow Fox',      emoji:'🦊', rarity:'epic',      power:21},
+  {id:'e3',  name:'Aurora Wing',     emoji:'🦋', rarity:'epic',      power:22},
+  {id:'e4',  name:'Solar Knight',    emoji:'🛡️', rarity:'epic',      power:23},
+  {id:'l1',  name:'Galaxy Guardian', emoji:'🌌', rarity:'legendary', power:24},
+  {id:'l2',  name:'Golden Titan',    emoji:'👑', rarity:'legendary', power:28},
+  {id:'m1',  name:'Celestial Phoenix', emoji:'🦅', rarity:'mythic', power:38},
+  {id:'m2',  name:'Void Emperor',      emoji:'🌑', rarity:'mythic', power:45},
+];
+const CHAR_MAP = Object.fromEntries(CHARACTERS.map(c=>[c.id,c]));
+
+const PACKS = [
+  {id:'p1', name:'Rookie Pack',   price:500,   icon:'📦', color:'#3a4550', odds:{common:72, uncommon:20, rare:5,  epic:2,  legendary:1,  mythic:0}},
+  {id:'p2', name:'Bronze Pack',   price:1500,  icon:'🎁', color:'#5a3a20', odds:{common:50, uncommon:30, rare:13, epic:5,  legendary:2,  mythic:0}},
+  {id:'p3', name:'Silver Pack',   price:4000,  icon:'🎁', color:'#41506a', odds:{common:26, uncommon:34, rare:24, epic:11, legendary:5,  mythic:0}},
+  {id:'p4', name:'Gold Pack',     price:9000,  icon:'🎊', color:'#5a4620', odds:{common:10, uncommon:28, rare:33, epic:18, legendary:10, mythic:1}},
+  {id:'p5', name:'Diamond Pack',  price:18000, icon:'💎', color:'#204f5a', odds:{common:2,  uncommon:13, rare:35, epic:24, legendary:21, mythic:5}},
+  {id:'p6', name:'Platinum Pack', price:35000, icon:'🛡️', color:'#3a3a5a', odds:{common:0,  uncommon:5,  rare:25, epic:30, legendary:27, mythic:13}},
+  {id:'p7', name:'Mythic Vault',  price:70000, icon:'🔮', color:'#5a1f52', odds:{common:0,  uncommon:0,  rare:10, epic:20, legendary:35, mythic:35}},
+];
+
+const NPC_NAMES = ['Marta_92','TapKing','Rui_Launches','SkyBella','Zeca7','LunaGo','Diego_R','Nova.exe'];
+
+/* ---------------- ONLINE MARKET (Google Apps Script backend) ---------------- */
+// Deploy the Apps Script web app (see chat for the code + steps), then paste its
+// /exec URL below. Until you do, the market just runs on the local simulation.
+const MARKET_API_URL = 'https://script.google.com/macros/s/AKfycbzntP3AQWF1N0LZEfJM-Nj81RQQwEAX3PEEmtmtaJhcbP8Bm4_5r-vtsGnQXEPDrpdiUA/exec';
+const ONLINE_MARKET_ENABLED = MARKET_API_URL.indexOf('http') === 0;
+let remoteListings = [];
+
+function apiUrl(params){
+  const q = Object.keys(params).map(k=>encodeURIComponent(k)+'='+encodeURIComponent(params[k])).join('&');
+  return MARKET_API_URL + (MARKET_API_URL.indexOf('?')>-1 ? '&' : '?') + q;
+}
+
+async function fetchRemoteListings(){
+  if(!ONLINE_MARKET_ENABLED) return;
+  try{
+    const res = await fetch(apiUrl({action:'list'}));
+    const data = await res.json();
+    if(data && data.success) remoteListings = data.listings || [];
+  }catch(err){ /* offline or misconfigured — silently fall back to local market */ }
+}
+
+async function postRemoteListing(inst, price){
+  if(!ONLINE_MARKET_ENABLED) return;
+  const c = CHAR_MAP[inst.charId];
+  try{
+    await fetch(apiUrl({
+      action:'sell', charId:c.id, charName:c.name, rarity:c.rarity, power:c.power,
+      price:price, sellerId:state.playerId, sellerName:state.playerName
+    }));
+    fetchRemoteListings();
+  }catch(err){ /* ignore — local listing still went through */ }
+}
+
+async function buyRemoteListing(listing){
+  try{
+    const res = await fetch(apiUrl({action:'buy', id:listing.id, buyerId:state.playerId}));
+    const data = await res.json();
+    if(data && data.success){
+      state.coins -= listing.price;
+      const inst = {uid:uid(), charId:listing.charId};
+      state.inventory.push(inst);
+      if(!state.equippedUid) state.equippedUid = inst.uid;
+      save();
+      toast(`Bought ${listing.charName} for ${listing.price} 🪙`);
+      fetchRemoteListings();
+      renderMarket();
+      renderArena();
+    } else {
+      toast('Someone already bought that — refreshing market...');
+      fetchRemoteListings().then(renderMarket);
+    }
+  }catch(err){
+    toast('Could not reach the online market. Check your connection.');
+  }
+}
+
+async function claimPayouts(){
+  if(!ONLINE_MARKET_ENABLED || !state.playerId) return;
+  try{
+    const res = await fetch(apiUrl({action:'claim', sellerId:state.playerId}));
+    const data = await res.json();
+    if(data && data.success && data.payouts && data.payouts.length){
+      let total = 0;
+      data.payouts.forEach(p=>{
+        total += Number(p.price);
+        const c = CHAR_MAP[p.charId];
+        toast(`A player bought your ${c ? c.name : 'character'} for ${p.price} 🪙!`);
+      });
+      state.coins += total;
+      save();
+      renderArena();
+    }
+  }catch(err){ /* try again next poll */ }
+}
+
+if(ONLINE_MARKET_ENABLED){
+  fetchRemoteListings();
+  setInterval(fetchRemoteListings, 6000);
+  setInterval(claimPayouts, 8000);
+}
+
+function collectionValue(){
+  return state.inventory.reduce((sum, inst)=>{
+    const c = CHAR_MAP[inst.charId];
+    return sum + (c ? RARITY_META[c.rarity].value : 0);
+  }, 0);
+}
+
+async function pushStats(){
+  if(!ONLINE_MARKET_ENABLED) return;
+  try{
+    await fetch(apiUrl({
+      action:'submitStats',
+      playerId: state.playerId,
+      playerName: state.playerName,
+      bestLaunch: state.bestLaunch,
+      totalDistance: state.totalDistance,
+      coins: state.coins,
+      collectionValue: collectionValue()
+    }));
+  }catch(err){ /* try again next time */ }
+}
+if(ONLINE_MARKET_ENABLED){
+  setInterval(pushStats, 12000);
+}
+
+const LB_LABELS = {
+  bestLaunch: {unit:'m', empty:'No launches recorded yet — be the first!'},
+  totalDistance: {unit:'m', empty:'No launches recorded yet — be the first!'},
+  coins: {unit:'🪙', empty:'No players on the board yet.'},
+  collectionValue: {unit:'🪙', empty:'No players on the board yet.'},
+};
+let lbType = 'bestLaunch';
+document.getElementById('lbTabs').addEventListener('click', (e)=>{
+  const btn = e.target.closest('[data-lb]');
+  if(!btn) return;
+  lbType = btn.dataset.lb;
+  document.querySelectorAll('#lbTabs .tabbtn').forEach(b=>b.classList.toggle('active', b===btn));
+  renderLeaderboard();
+});
+
+async function renderLeaderboard(){
+  const list = document.getElementById('lbList');
+  const emptyMsg = document.getElementById('lbEmpty');
+  const meta = LB_LABELS[lbType];
+
+  if(!ONLINE_MARKET_ENABLED){
+    list.innerHTML = '';
+    emptyMsg.style.display = 'block';
+    emptyMsg.textContent = 'Leaderboards need the online market connected — deploy the Apps Script backend to see how you stack up against other players.';
+    return;
+  }
+
+  list.innerHTML = '<div class="empty-msg" style="margin-top:20px;">Loading...</div>';
+  emptyMsg.style.display = 'none';
+  await pushStats();
+  try{
+    const res = await fetch(apiUrl({action:'leaderboard', type:lbType}));
+    const data = await res.json();
+    list.innerHTML = '';
+    if(!data || !data.success || !data.entries || data.entries.length===0){
+      emptyMsg.style.display = 'block';
+      emptyMsg.textContent = meta.empty;
+      return;
+    }
+    data.entries.forEach((entry, idx)=>{
+      const rank = idx+1;
+      const isYou = entry.playerName === state.playerName;
+      const row = document.createElement('div');
+      row.className = 'market-row' + (isYou ? ' lb-you' : '');
+      const rankClass = rank===1?'top1':rank===2?'top2':rank===3?'top3':'';
+      row.innerHTML = `
+        <div class="lb-rank ${rankClass}">${rank}</div>
+        <div class="market-mid">
+          <div class="market-name">${entry.playerName}${isYou ? ' <span style="color:var(--accent-2)">· You</span>' : ''}</div>
+        </div>
+        <div class="market-price">${entry.value.toLocaleString()} ${meta.unit}</div>`;
+      list.appendChild(row);
+    });
+  }catch(err){
+    list.innerHTML = '';
+    emptyMsg.style.display = 'block';
+    emptyMsg.textContent = 'Could not reach the leaderboard. Check your connection.';
+  }
+}
+
+/* ---------------- STATE ---------------- */
+const SAVE_KEY = 'launchLegendsSave_v2';
+let state = null;
+
+function freshState(){
+  const starter = {uid: uid(), charId:'c1'};
+  const pid = uid();
+  return {
+    coins: 1200,
+    inventory: [starter],
+    equippedUid: starter.uid,
+    market: seedMarket(),
+    playerId: pid,
+    playerName: 'Launcher_' + pid.slice(-4),
+    bestLaunch: 0,
+    totalDistance: 0,
+  };
+}
+function uid(){ return 'x'+Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); }
+
+function seedMarket(){
+  const seedChars = ['u3','u6','r2','r4','c7','u1','r1','c3','l1','m1','e2'];
+  return seedChars.map(cid=>{
+    const c = CHAR_MAP[cid];
+    const base = RARITY_META[c.rarity].value;
+    const price = Math.round(base * (0.35 + Math.random()*0.35));
+    return {uid:uid(), charId:cid, price, seller: NPC_NAMES[Math.floor(Math.random()*NPC_NAMES.length)]};
+  });
+}
+
+function randomCommonId(){
+  const pool = CHARACTERS.filter(c=>c.rarity==='common');
+  return pool[Math.floor(Math.random()*pool.length)].id;
+}
+
+function load(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(raw){ state = JSON.parse(raw); }
+    else { state = freshState(); save(); }
+  }catch(e){ state = freshState(); }
+
+  // Migrate older saves that predate the online market / player identity.
+  if(!state.playerId){
+    state.playerId = uid();
+    state.playerName = 'Launcher_' + state.playerId.slice(-4);
+    save();
+  }
+  if(typeof state.bestLaunch !== 'number') state.bestLaunch = 0;
+  if(typeof state.totalDistance !== 'number') state.totalDistance = 0;
+
+  // Safety net: never let a player be stuck with zero characters and not enough
+  // coins to open even the cheapest pack. Grant one free common character.
+  if(state.inventory.length === 0 && state.coins < PACKS[0].price){
+    const inst = {uid:uid(), charId: randomCommonId()};
+    state.inventory.push(inst);
+    state.equippedUid = inst.uid;
+    save();
+    pendingReliefToast = true;
+  }
+}
+let pendingReliefToast = false;
+function save(){ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
+
+/* ---------------- NAV ---------------- */
+const screens = ['arena','packs','inventory','market','leaderboard'];
+function goTo(name){
+  screens.forEach(s=>{
+    document.getElementById('screen-'+s).classList.toggle('active', s===name);
+  });
+  document.querySelectorAll('.navbtn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.go===name);
+  });
+  if(name==='packs') renderPacks();
+  if(name==='inventory') renderInventory();
+  if(name==='market'){ renderMarket(); if(ONLINE_MARKET_ENABLED) fetchRemoteListings().then(renderMarket); }
+  if(name==='arena') renderArena();
+  if(name==='leaderboard') renderLeaderboard();
+}
+document.querySelectorAll('[data-go]').forEach(el=>{
+  el.addEventListener('click', ()=>goTo(el.dataset.go));
+});
+
+/* ---------------- TOAST ---------------- */
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ---------------- ARENA (launch screen) ---------------- */
+let launchPhase = 'idle'; // idle -> launching -> tapping -> ended
+let launchData = null;
+
+function renderArena(){
+  document.getElementById('coinCount').textContent = state.coins;
+  const eq = state.inventory.find(i=>i.uid===state.equippedUid);
+  const charRow = document.getElementById('arenaCharRow');
+  const noCharBox = document.getElementById('noCharBox');
+  const playArea = document.getElementById('arenaPlayArea');
+
+  if(!eq){
+    charRow.style.display = 'none';
+    playArea.style.display = 'none';
+    noCharBox.style.display = 'flex';
+    return;
+  }
+  noCharBox.style.display = 'none';
+  charRow.style.display = 'flex';
+  playArea.style.display = 'flex';
+
+  const c = CHAR_MAP[eq.charId];
+  document.getElementById('arenaCharEmoji').textContent = c.emoji;
+  document.getElementById('arenaCharName').textContent = c.name;
+  document.getElementById('arenaCharPower').textContent = 'Power ' + c.power;
+
+  if(launchPhase === 'idle'){
+    resetTrackVisual(c.emoji);
+  }
+}
+
+document.getElementById('claimFreeBtn').addEventListener('click', ()=>{
+  const inst = {uid:uid(), charId: randomCommonId()};
+  state.inventory.push(inst);
+  state.equippedUid = inst.uid;
+  save();
+  const c = CHAR_MAP[inst.charId];
+  toast(`You got ${c.name}! Time to launch.`);
+  renderArena();
+});
+
+function resetTrackVisual(emoji){
+  document.getElementById('powerNum').textContent = '0';
+  document.getElementById('distanceNum').textContent = '0m';
+  const runner = document.getElementById('runner');
+  runner.textContent = emoji;
+  runner.style.transition = 'left .1s linear, transform .1s linear';
+  runner.style.transform = 'translateY(0px)';
+  runner.style.left = '26px';
+  document.getElementById('trackScroll').style.backgroundPositionX = '0px';
+  buildTrackMarkers();
+  const btn = document.getElementById('actionBtn');
+  btn.textContent = 'LAUNCH';
+  btn.disabled = false;
+  document.getElementById('actionHint').textContent = 'Press launch, then tap (or hit space) to keep it flying!';
+}
+
+let trackMaxMeter = 0;
+const JUMP_HEIGHT = 90; // px the character rises into the air on launch
+function buildTrackMarkers(){
+  const outer = document.getElementById('trackOuter');
+  outer.querySelectorAll('.track-marker').forEach(el=>el.remove());
+  trackMaxMeter = 0;
+  extendTrackMarkers(600);
+}
+function extendTrackMarkers(upTo){
+  const outer = document.getElementById('trackOuter');
+  for(let m = trackMaxMeter + 20; m <= upTo; m += 20){
+    const el = document.createElement('div');
+    el.className='track-marker';
+    el.dataset.m = m;
+    el.style.left = (26 + m*4) + 'px';
+    el.textContent = m+'m';
+    outer.appendChild(el);
+  }
+  trackMaxMeter = Math.max(trackMaxMeter, upTo);
+}
+
+document.getElementById('actionBtn').addEventListener('click', ()=>{
+  if(launchPhase==='idle'){
+    beginLaunchSequence();
+  } else if(launchPhase==='tapping'){
+    tapAdvance();
+  }
+});
+
+function beginLaunchSequence(){
+  const eq = state.inventory.find(i=>i.uid===state.equippedUid);
+  if(!eq) return;
+  const c = CHAR_MAP[eq.charId];
+  launchPhase = 'launching';
+  launchData = { power:c.power, basePower:c.power, distance:0, verticalRatio:0 };
+
+  const btn = document.getElementById('actionBtn');
+  btn.disabled = true;
+  btn.textContent = 'Launching...';
+  document.getElementById('actionHint').textContent = 'Watch it go!';
+
+  const runner = document.getElementById('runner');
+  runner.style.transition = 'left .08s linear, transform .08s linear';
+
+  // Automatic launch: character throws itself into the air and shoots forward
+  // by its base power while you watch.
+  const boostDistance = c.power;
+  const startTime = performance.now();
+  const duration = 1100;
+  function animateBoost(now){
+    const t = Math.min(1, (now-startTime)/duration);
+    launchData.distance = Math.round(boostDistance * t);
+    launchData.verticalRatio = Math.sin(t * Math.PI/2); // eases up to fully airborne
+    updateLaunchUI();
+    if(t < 1){
+      requestAnimationFrame(animateBoost);
+    } else {
+      beginTapPhase();
+    }
+  }
+  requestAnimationFrame(animateBoost);
+}
+
+function beginTapPhase(){
+  launchPhase = 'tapping';
+  const btn = document.getElementById('actionBtn');
+  btn.disabled = false;
+  btn.textContent = 'TAP!';
+  document.getElementById('actionHint').textContent = 'Power drops every second — keep tapping (or spamming space)!';
+  // Slow, smooth descent: the vertical position now eases toward the ground
+  // over each full second as power depletes, landing exactly when power hits 0.
+  const runner = document.getElementById('runner');
+  runner.style.transition = 'left .1s linear, transform 1s linear';
+  clearInterval(launchData.timer);
+  launchData.timer = setInterval(decayPower, 1000);
+}
+
+function decayPower(){
+  if(launchPhase!=='tapping') return;
+  launchData.power = Math.max(0, launchData.power - 1);
+  launchData.verticalRatio = launchData.basePower ? (launchData.power / launchData.basePower) : 0;
+  updateLaunchUI();
+  if(launchData.power <= 0){
+    endLaunch();
+  }
+}
+
+function tapAdvance(){
+  if(launchPhase!=='tapping' || launchData.power<=0) return;
+  launchData.distance += launchData.power;
+  updateLaunchUI();
+}
+
+function updateLaunchUI(){
+  document.getElementById('powerNum').textContent = launchData.power;
+  document.getElementById('distanceNum').textContent = launchData.distance + 'm';
+  const runner = document.getElementById('runner');
+  const scroll = document.getElementById('trackScroll');
+  const outer = document.getElementById('trackOuter');
+  const width = outer.clientWidth;
+
+  // Keep generating markers ahead of the runner — the floor never runs out of numbers.
+  const neededAhead = launchData.distance + Math.ceil(width/4) + 100;
+  if(neededAhead > trackMaxMeter){
+    extendTrackMarkers(Math.ceil(neededAhead/20)*20);
+  }
+
+  const px = 26 + launchData.distance*4;
+  const shift = Math.max(0, px - (width - 60));
+  runner.style.left = (px - shift) + 'px';
+  runner.style.transform = `translateY(${-JUMP_HEIGHT * (launchData.verticalRatio||0)}px)`;
+  scroll.style.backgroundPositionX = (-shift) + 'px';
+  outer.querySelectorAll('.track-marker').forEach(el=>{
+    const m = parseInt(el.dataset.m,10);
+    const left = 26 + m*4 - shift;
+    if(left < -200){ el.remove(); return; }
+    el.style.left = left + 'px';
+  });
+}
+
+function endLaunch(){
+  launchPhase = 'ended';
+  clearInterval(launchData.timer);
+  const btn = document.getElementById('actionBtn');
+  btn.disabled = true;
+  btn.textContent = 'Power depleted';
+  document.getElementById('actionHint').textContent = '';
+  const earned = launchData.distance;
+  state.coins += earned;
+  state.totalDistance += launchData.distance;
+  const isNewBest = launchData.distance > state.bestLaunch;
+  if(isNewBest) state.bestLaunch = launchData.distance;
+  save();
+  pushStats();
+  setTimeout(()=>{
+    document.getElementById('resultLine').innerHTML = `You reached <b>${launchData.distance}m</b>` + (isNewBest ? ' — new personal best! 🏆' : '');
+    document.getElementById('resultCoins').textContent = `+${earned} 🪙`;
+    document.getElementById('resultModalBackdrop').classList.add('active');
+  }, 450);
+}
+document.getElementById('resultCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('resultModalBackdrop').classList.remove('active');
+  launchPhase = 'idle';
+  renderArena();
+});
+
+/* ---------------- PACKS ---------------- */
+function renderPacks(){
+  document.getElementById('coinCount').textContent = state.coins;
+  const wrap = document.getElementById('packList');
+  wrap.innerHTML = '';
+  PACKS.forEach(p=>{
+    const oddsStr = RARITY_ORDER.filter(r=>(p.odds[r]||0)>0).map(r=>`${RARITY_META[r].label[0]} ${p.odds[r]}%`).join(' · ');
+    const div = document.createElement('div');
+    div.className = 'pack-card';
+    div.innerHTML = `
+      <div class="pack-icon" style="background:${p.color}">${p.icon}</div>
+      <div class="pack-info">
+        <div class="pack-name">${p.name}</div>
+        <div class="pack-odds">${oddsStr}</div>
+      </div>
+      <button class="pack-buy" ${state.coins<p.price?'disabled':''} data-pack="${p.id}">
+        ${p.price} 🪙
+      </button>`;
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll('.pack-buy').forEach(b=>{
+    b.addEventListener('click', ()=>openPack(b.dataset.pack));
+  });
+}
+
+function rollRarity(odds){
+  const roll = Math.random()*100;
+  let acc = 0;
+  for(const r of RARITY_ORDER){
+    acc += (odds[r]||0);
+    if(roll <= acc) return r;
+  }
+  return 'common';
+}
+
+function openPack(packId){
+  const pack = PACKS.find(p=>p.id===packId);
+  if(state.coins < pack.price) return;
+  state.coins -= pack.price;
+  const rarity = rollRarity(pack.odds);
+  const pool = CHARACTERS.filter(c=>c.rarity===rarity);
+  const won = pool[Math.floor(Math.random()*pool.length)];
+  const inst = {uid:uid(), charId:won.id};
+  state.inventory.push(inst);
+  if(!state.equippedUid) state.equippedUid = inst.uid;
+  save();
+  showPackResult(pack, won);
+  renderPacks();
+}
+
+function showPackResult(pack, won){
+  const meta = RARITY_META[won.rarity];
+  document.getElementById('packResultEmoji').textContent = won.emoji;
+  document.getElementById('packResultTitle').textContent = 'Pack opened!';
+  document.getElementById('packResultLine').innerHTML =
+    `From <b>${pack.name}</b> you got <b>${won.name}</b> — <span style="color:${meta.color}">${meta.label}</span> (Power ${won.power})`;
+  document.getElementById('packModalBackdrop').classList.add('active');
+}
+document.getElementById('packResultClose').addEventListener('click', ()=>{
+  document.getElementById('packModalBackdrop').classList.remove('active');
+});
+
+/* ---------------- INVENTORY ---------------- */
+function renderInventory(){
+  document.getElementById('coinCount').textContent = state.coins;
+  const grid = document.getElementById('invGrid');
+  const emptyMsg = document.getElementById('invEmpty');
+  grid.innerHTML = '';
+  if(state.inventory.length===0){
+    emptyMsg.style.display='block';
+    return;
+  }
+  emptyMsg.style.display='none';
+  state.inventory.forEach(inst=>{
+    const c = CHAR_MAP[inst.charId];
+    const meta = RARITY_META[c.rarity];
+    const tile = document.createElement('div');
+    tile.className = 'char-tile' + (inst.uid===state.equippedUid?' equipped':'');
+    tile.innerHTML = `
+      <div class="char-emoji">${c.emoji}</div>
+      <div class="char-name">${c.name}</div>
+      <div class="char-power">⚡${c.power}</div>
+      <div class="rarity-tag" style="background:${meta.color}22; color:${meta.color}">${meta.label}</div>`;
+    tile.addEventListener('click', ()=>openCharModal(inst));
+    grid.appendChild(tile);
+  });
+}
+
+function openCharModal(inst){
+  const c = CHAR_MAP[inst.charId];
+  const meta = RARITY_META[c.rarity];
+  const modal = document.getElementById('charModal');
+  modal.innerHTML = `
+    <div class="char-emoji">${c.emoji}</div>
+    <div class="modal-name">${c.name}</div>
+    <div class="modal-sub" style="color:${meta.color}">${meta.label} · Power ${c.power}</div>
+    <div class="modal-actions">
+      <button class="maction use" id="actUse">Use for launching</button>
+      <button class="maction sell" id="actSell">Sell on market</button>
+      <button class="maction quick" id="actQuick">Quick sell (${meta.qs} 🪙)</button>
+      <button class="maction cancel" id="actCancel">Cancel</button>
+    </div>`;
+  document.getElementById('charModalBackdrop').classList.add('active');
+
+  document.getElementById('actUse').onclick = ()=>{
+    state.equippedUid = inst.uid;
+    save();
+    closeCharModal();
+    toast(`${c.name} equipped!`);
+    renderInventory();
+    goTo('arena');
+  };
+  document.getElementById('actSell').onclick = ()=>{
+    closeCharModal();
+    openSellModal(inst);
+  };
+  document.getElementById('actQuick').onclick = ()=>{
+    state.inventory = state.inventory.filter(i=>i.uid!==inst.uid);
+    if(state.equippedUid===inst.uid) state.equippedUid = state.inventory[0] ? state.inventory[0].uid : null;
+    state.coins += meta.qs;
+    save();
+    closeCharModal();
+    toast(`Quick sold ${c.name} for ${meta.qs} 🪙`);
+    renderInventory();
+  };
+  document.getElementById('actCancel').onclick = closeCharModal;
+}
+function closeCharModal(){ document.getElementById('charModalBackdrop').classList.remove('active'); }
+
+let sellTarget = null;
+function openSellModal(inst){
+  sellTarget = inst;
+  document.getElementById('sellPriceInput').value = '';
+  document.getElementById('sellModalBackdrop').classList.add('active');
+}
+document.getElementById('cancelSellBtn').addEventListener('click', ()=>{
+  document.getElementById('sellModalBackdrop').classList.remove('active');
+});
+document.getElementById('confirmSellBtn').addEventListener('click', ()=>{
+  const val = parseInt(document.getElementById('sellPriceInput').value, 10);
+  if(!val || val<=0){ toast('Enter a valid price'); return; }
+  const c = CHAR_MAP[sellTarget.charId];
+  state.inventory = state.inventory.filter(i=>i.uid!==sellTarget.uid);
+  if(state.equippedUid===sellTarget.uid) state.equippedUid = state.inventory[0] ? state.inventory[0].uid : null;
+  const listing = {uid:uid(), charId:sellTarget.charId, price:val, seller:'You', listedAt:Date.now(), buyAt: Date.now() + (8000+Math.random()*22000)};
+  state.market.push(listing);
+  save();
+  postRemoteListing(sellTarget, val);
+  document.getElementById('sellModalBackdrop').classList.remove('active');
+  toast(`${c.name} listed for ${val} 🪙`);
+  renderInventory();
+});
+
+/* ---------------- MARKET ---------------- */
+let marketTab = 'buy';
+document.getElementById('tabBuy').addEventListener('click', ()=>{ marketTab='buy'; setMarketTab(); });
+document.getElementById('tabMine').addEventListener('click', ()=>{ marketTab='mine'; setMarketTab(); });
+function setMarketTab(){
+  document.getElementById('tabBuy').classList.toggle('active', marketTab==='buy');
+  document.getElementById('tabMine').classList.toggle('active', marketTab==='mine');
+  renderMarket();
+}
+
+function renderMarket(){
+  document.getElementById('coinCount').textContent = state.coins;
+  const list = document.getElementById('marketList');
+  const emptyMsg = document.getElementById('marketEmpty');
+  list.innerHTML = '';
+
+  const localItems = state.market.map(m => ({
+    kind:'local', uid:m.uid, charId:m.charId, price:m.price, seller:m.seller
+  }));
+  const remoteItems = remoteListings.map(r => ({
+    kind:'remote', id:r.id, charId:r.charId, price:Number(r.price),
+    seller: r.sellerId===state.playerId ? 'You' : (r.sellerName || 'Player')
+  }));
+  const all = localItems.concat(remoteItems);
+
+  const items = all.filter(m => marketTab==='buy' ? m.seller!=='You' : m.seller==='You');
+  if(items.length===0){
+    emptyMsg.style.display='block';
+    emptyMsg.textContent = marketTab==='buy' ? 'No listings right now — check back soon!' : "You haven't listed anything yet.";
+    return;
+  }
+  emptyMsg.style.display='none';
+  items.forEach(m=>{
+    const c = CHAR_MAP[m.charId];
+    if(!c) return;
+    const meta = RARITY_META[c.rarity];
+    const row = document.createElement('div');
+    row.className = 'market-row';
+    const tagKey = m.kind==='remote' ? m.id : m.uid;
+    const onlineTag = m.kind==='remote' ? ' <span style="color:var(--accent-2)">· Online</span>' : '';
+    row.innerHTML = `
+      <div class="char-emoji">${c.emoji}</div>
+      <div class="market-mid">
+        <div class="market-name">${c.name} <span style="color:${meta.color}">· ${meta.label}</span>${onlineTag}</div>
+        <div class="market-seller">${m.seller==='You' ? 'Listed by you · waiting for a buyer' : 'Seller: '+m.seller}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="market-price">${m.price} 🪙</div>
+        ${marketTab==='buy' ? `<button class="market-buy" ${state.coins<m.price?'disabled':''} data-kind="${m.kind}" data-key="${tagKey}">Buy</button>` : ''}
+      </div>`;
+    list.appendChild(row);
+  });
+  if(marketTab==='buy'){
+    list.querySelectorAll('.market-buy').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        if(b.dataset.kind==='remote'){
+          const r = remoteListings.find(x=>x.id===b.dataset.key);
+          if(r) buyRemoteListing({id:r.id, charId:r.charId, charName:CHAR_MAP[r.charId]?.name, price:Number(r.price)});
+        } else {
+          buyListing(b.dataset.key);
+        }
+      });
+    });
+  }
+}
+
+function buyListing(listingUid){
+  const listing = state.market.find(m=>m.uid===listingUid);
+  if(!listing || state.coins < listing.price) return;
+  state.coins -= listing.price;
+  state.market = state.market.filter(m=>m.uid!==listingUid);
+  const inst = {uid:uid(), charId:listing.charId};
+  state.inventory.push(inst);
+  if(!state.equippedUid) state.equippedUid = inst.uid;
+  save();
+  const c = CHAR_MAP[listing.charId];
+  toast(`Bought ${c.name} for ${listing.price} 🪙`);
+  renderMarket();
+}
+
+// Simulate other players occasionally buying items YOU listed.
+setInterval(()=>{
+  if(!state) return;
+  const mine = state.market.filter(m=>m.seller==='You' && m.buyAt && Date.now() >= m.buyAt);
+  if(mine.length){
+    mine.forEach(m=>{
+      state.coins += m.price;
+      const c = CHAR_MAP[m.charId];
+      toast(`${NPC_NAMES[Math.floor(Math.random()*NPC_NAMES.length)]} bought your ${c.name} for ${m.price} 🪙!`);
+    });
+    state.market = state.market.filter(m=>!mine.includes(m));
+    save();
+    if(document.getElementById('screen-market').classList.contains('active')) renderMarket();
+    if(document.getElementById('screen-arena').classList.contains('active')) renderArena();
+  }
+}, 4000);
+
+/* ---------------- INIT ---------------- */
+load();
+renderArena();
+window.addEventListener('resize', ()=>{ if(launchPhase!=='idle') updateLaunchUI(); });
+window.addEventListener('keydown', (e)=>{
+  if(e.code !== 'Space') return;
+  const tag = (document.activeElement && document.activeElement.tagName) || '';
+  if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+  if(!document.getElementById('screen-arena').classList.contains('active')) return;
+  e.preventDefault();
+  const btn = document.getElementById('actionBtn');
+  if(!btn.disabled) btn.click();
+});
+if(pendingReliefToast){
+  setTimeout(()=>toast('Ran out of characters? Here\'s a free one to get back in the game.'), 400);
+}
+</script>
+</body>
+</html>
