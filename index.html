@@ -104,7 +104,7 @@
   }
 
   /* ---------- ARENA (full-screen launch = home) ---------- */
-  #screen-arena{padding:4px 14px 10px;}
+  #screen-arena{padding:4px 14px 10px; overflow:hidden;}
   .arena-char-row{
     display:flex; align-items:center; gap:12px;
     background:var(--surface-2);
@@ -950,6 +950,7 @@ function resetTrackVisual(emoji){
   runner.style.transform = 'translateY(0px)';
   runner.style.left = '26px';
   document.getElementById('trackScroll').style.backgroundPositionX = '0px';
+  lastShift = 0;
   buildTrackMarkers();
   const btn = document.getElementById('actionBtn');
   btn.textContent = 'LAUNCH';
@@ -958,6 +959,7 @@ function resetTrackVisual(emoji){
 }
 
 let trackMaxMeter = 0;
+let lastShift = 0;
 const JUMP_HEIGHT = 90; // px the character rises into the air on launch
 function buildTrackMarkers(){
   const outer = document.getElementById('trackOuter');
@@ -1065,7 +1067,9 @@ function updateLaunchUI(){
   }
 
   const px = 26 + launchData.distance*4;
-  const shift = Math.max(0, px - (width - 60));
+  let shift = Math.max(0, px - (width - 60));
+  shift = Math.max(shift, lastShift); // never let the camera pan backward
+  lastShift = shift;
   runner.style.left = (px - shift) + 'px';
   runner.style.transform = `translateY(${-JUMP_HEIGHT * (launchData.verticalRatio||0)}px)`;
   scroll.style.backgroundPositionX = (-shift) + 'px';
