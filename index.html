@@ -24,7 +24,7 @@
     --mythic: #FF5DEC;
     --danger: #FF5D5D;
   }
-  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation;}
   html,body{margin:0;padding:0;height:100%; overflow:hidden;}
   body{
     background: radial-gradient(ellipse at top, #1a1140 0%, #0b0720 70%);
@@ -831,7 +831,7 @@ function seedMarket(){
   return seedChars.map(cid=>{
     const c = CHAR_MAP[cid];
     const base = RARITY_META[c.rarity].value;
-    const price = Math.round(base * (0.35 + Math.random()*0.35));
+    const price = Math.round(base * (0.75 + Math.random()*0.55));
     return {uid:uid(), charId:cid, price, seller: NPC_NAMES[Math.floor(Math.random()*NPC_NAMES.length)]};
   });
 }
@@ -1353,6 +1353,37 @@ setInterval(()=>{
   }
 }, 4000);
 
+// Periodic NPC restocking: every few minutes, clear out old NPC listings
+// (your own "You" listings are untouched) and replace them with a fresh
+// batch, so the Buy tab never permanently runs dry even without the
+// online market connected.
+const NPC_RESTOCK_INTERVAL = 3 * 60 * 1000; // 3 minutes
+const NPC_LISTING_ODDS = {common:30, uncommon:34, rare:22, epic:9, legendary:4, mythic:1};
+
+function makeNpcListing(){
+  const rarity = rollRarity(NPC_LISTING_ODDS);
+  const pool = CHARACTERS.filter(c=>c.rarity===rarity);
+  const c = pool[Math.floor(Math.random()*pool.length)];
+  const base = RARITY_META[c.rarity].value;
+  const price = Math.round(base * (0.75 + Math.random()*0.55));
+  return {uid:uid(), charId:c.id, price, seller: NPC_NAMES[Math.floor(Math.random()*NPC_NAMES.length)]};
+}
+
+function restockNpcMarket(){
+  if(!state) return;
+  state.market = state.market.filter(m=>m.seller==='You');
+  const freshCount = 3 + Math.floor(Math.random()*3); // 3-5 new listings
+  for(let i=0;i<freshCount;i++){
+    state.market.push(makeNpcListing());
+  }
+  save();
+  if(document.getElementById('screen-market').classList.contains('active')){
+    toast('The market just restocked!');
+    renderMarket();
+  }
+}
+setInterval(restockNpcMarket, NPC_RESTOCK_INTERVAL);
+
 /* ---------------- PROFILE ---------------- */
 function renderProfile(){
   document.getElementById('coinCount').textContent = state.coins;
@@ -1420,6 +1451,7 @@ renderArena();
 window.addEventListener('resize', ()=>{ if(launchPhase!=='idle') updateLaunchUI(); });
 window.addEventListener('keydown', (e)=>{
   if(e.code !== 'Space') return;
+  if(e.repeat) return; // holding the key down shouldn't auto-repeat taps
   const tag = (document.activeElement && document.activeElement.tagName) || '';
   if(tag === 'INPUT' || tag === 'TEXTAREA') return;
   if(!document.getElementById('screen-arena').classList.contains('active')) return;
